@@ -478,7 +478,7 @@ td:nth-child(4){
 </div>
 
 <div class="aviso">
-Os percentuais são acrescentados ao valor original da dívida. A entrada corresponde a 10% do valor total já acrescido.
+Os percentuais são acrescentados ao valor original da dívida. Em 1x não há entrada; de 2x a 12x, a entrada corresponde a 10% do valor total já acrescido.
 </div>
 
 <div class="copyright">
@@ -522,8 +522,8 @@ function calcular(){
     percentuais.forEach(percentual=>{
         const acrescimo=divida*(percentual/100);
         const valorTotal=divida+acrescimo;
-        const entrada=valorTotal*0.10;
-        const saldo=valorTotal-entrada;
+        const entrada=parcelas === 1 ? 0 : valorTotal*0.10;
+        const saldo=parcelas === 1 ? valorTotal : valorTotal-entrada;
         const valorParcela=saldo/parcelas;
 
         const linha=document.createElement('tr');
@@ -531,7 +531,7 @@ function calcular(){
             <td>${percentual}%</td>
             <td>${moeda(valorTotal)}</td>
             <td>${moeda(entrada)}</td>
-            <td>${moeda(saldo/1)}</td>
+            <td>${moeda(valorTotal)}</td>
             <td>${moeda(saldo/2)}</td>
             <td>${moeda(saldo/3)}</td>
             <td>${moeda(saldo/4)}</td>
