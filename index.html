@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Acordo</title>
+<style>
+*{box-sizing:border-box}
+
+:root{
+    --navy:#17233c;
+    --navy-dark:#0f172a;
+    --gold:#c9a227;
+    --gold-light:#f5edcf;
+    --bg:#f3f5f8;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+}
+
+body{
+    margin:0;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:linear-gradient(135deg,#eef1f5,#f8f9fb);
+    color:var(--text);
+}
+
+.container{
+    max-width:1250px;
+    margin:45px auto;
+    padding:20px;
+}
+
+.card{
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 14px 40px rgba(15,23,42,.10);
+    border:1px solid #e9ebef;
+}
+
+.header{
+    background:linear-gradient(135deg,var(--navy-dark),var(--navy));
+    color:white;
+    padding:30px 35px;
+    position:relative;
+}
+
+.header:after{
+    content:"";
+    position:absolute;
+    left:35px;
+    bottom:0;
+    width:70px;
+    height:4px;
+    background:var(--gold);
+}
+
+.header h1{
+    margin:0 0 7px;
+    font-size:28px;
+    letter-spacing:.2px;
+}
+
+.header p{
+    margin:0;
+    color:#cbd5e1;
+    font-size:14px;
+}
+
+.content{
+    padding:30px 35px 35px;
+}
+
+.inputs{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:22px;
+    margin-bottom:22px;
+}
+
+.input-box{
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:17px;
+}
+
+label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color:#374151;
+    margin-bottom:9px;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+}
+
+input{
+    width:100%;
+    padding:14px 15px;
+    border:1px solid #d1d5db;
+    border-radius:9px;
+    font-size:18px;
+    outline:none;
+    background:white;
+    color:var(--navy-dark);
+    transition:.2s;
+}
+
+input:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(201,162,39,.13);
+}
+
+.buttons{
+    display:flex;
+    gap:12px;
+    margin-bottom:28px;
+}
+
+button{
+    border:0;
+    border-radius:9px;
+    padding:13px 23px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+.calcular{
+    background:var(--navy);
+    color:white;
+}
+
+.calcular:hover{
+    background:#223252;
+}
+
+.imprimir{
+    background:var(--gold);
+    color:#171717;
+}
+
+.imprimir:hover{
+    background:#d6b33b;
+}
+
+.resultado{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:12px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:980px;
+}
+
+th{
+    padding:15px 13px;
+    background:var(--navy);
+    color:white;
+    text-align:right;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.35px;
+    white-space:nowrap;
+}
+
+th:first-child{
+    text-align:center;
+}
+
+td{
+    padding:15px 13px;
+    border-bottom:1px solid var(--border);
+    text-align:right;
+    font-size:14px;
+    white-space:nowrap;
+}
+
+tbody tr:nth-child(even){
+    background:#fafafa;
+}
+
+tbody tr:hover{
+    background:#f8f4e6;
+}
+
+td:first-child{
+    text-align:center;
+    font-weight:800;
+    color:var(--navy);
+}
+
+td:nth-child(3){
+    font-size:15px;
+}
+
+td:nth-child(4){
+    color:#8b6b00;
+}
+
+.destaque{
+    font-weight:800;
+}
+
+.aviso{
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    color:var(--muted);
+    margin-top:16px;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.aviso:before{
+    content:"ⓘ";
+    color:var(--gold);
+    font-size:14px;
+}
+
+@media(max-width:700px){
+    .container{margin:15px auto;padding:8px}
+    .header{padding:24px}
+    .header h1{font-size:23px}
+    .content{padding:22px 20px 25px}
+    .inputs{grid-template-columns:1fr}
+    .buttons{flex-direction:column}
+    button{width:100%}
+}
+
+.print-only{
+    display:none;
+}
+
+.print-section-title{
+    font-weight:800;
+    color:var(--navy);
+    margin:10px 0 7px;
+    font-size:12px;
+}
+
+.print-table-wrap{
+    overflow-x:auto;
+}
+
+.print-installments{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1100px;
+}
+
+.print-installments th{
+    background:#f0f2f5;
+    color:#111;
+    border:1px solid #d5d9df;
+    padding:7px 4px;
+    font-size:10px;
+    text-align:center;
+}
+
+.print-installments td{
+    border:1px solid #d5d9df;
+    padding:6px 4px;
+    font-size:10px;
+    text-align:center;
+    white-space:nowrap;
+}
+
+.copyright{
+    text-align:center;
+    margin-top:18px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+    font-size:10px;
+    color:#6b7280;
+    font-weight:600;
+}
+
+@page{
+    size:A4 landscape;
+    margin:8mm;
+}
+
+@media print{
+    *{box-sizing:border-box}
+
+    body{
+        background:white;
+        margin:0;
+        font-size:9px;
+    }
+
+    .container{
+        margin:0;
+        max-width:none;
+        width:100%;
+        padding:0;
+    }
+
+    .card{
+        box-shadow:none;
+        border:0;
+        border-radius:0;
+        width:100%;
+    }
+
+    .header{
+        background:white;
+        color:#111;
+        border-bottom:2px solid #222;
+        padding:5px 0 7px;
+    }
+
+    .header h1{
+        font-size:18px;
+        margin:0 0 2px;
+    }
+
+    .header p{
+        color:#555;
+        font-size:9px;
+    }
+
+    .header:after{
+        display:none;
+    }
+
+    .content{
+        padding:8px 0 0;
+    }
+
+    .buttons,.inputs{
+        display:none;
+    }
+
+    .resultado{
+        display:none;
+    }
+
+    .print-only{
+        display:block;
+        margin-top:8px;
+    }
+
+    .print-section-title{
+        font-size:10px;
+        margin:7px 0 4px;
+    }
+
+    .print-table-wrap{
+        overflow:visible;
+    }
+
+    .print-installments{
+        width:100%;
+        min-width:0;
+        table-layout:fixed;
+        border-collapse:collapse;
+    }
+
+    .print-installments th{
+        font-size:6.5px;
+        padding:4px 2px;
+        line-height:1.1;
+        white-space:normal;
+    }
+
+    .print-installments td{
+        font-size:6.5px;
+        padding:4px 2px;
+        line-height:1.1;
+        white-space:nowrap;
+    }
+
+    .copyright{
+        font-size:7px;
+        margin-top:7px;
+        padding-top:5px;
+        border-top:1px solid #bbb;
+    }
+
+    .print-installments th{
+        background:#eee;
+        color:#111;
+    }
+
+    .aviso{
+        display:none;
+    }
+
+    .aviso:before{
+        display:none;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="header">
+    <h1>Calculadora de Acordo</h1>
+    <p>Simulação de valores, entrada e parcelamento</p>
+</div>
+
+<div class="content">
+<div class="inputs">
+<div class="input-box">
+<label for="divida">Valor da dívida (R$)</label>
+<input id="divida" type="text" inputmode="decimal" placeholder="Ex.: 2.000,00">
+</div>
+<div class="input-box">
+<label for="parcelas">Quantidade de parcelas</label>
+<input id="parcelas" type="number" min="1" step="1" placeholder="Ex.: 12">
+</div>
+</div>
+
+<div class="buttons">
+<button class="calcular" onclick="calcular()">Calcular</button>
+<button class="imprimir" onclick="window.print()">Imprimir</button>
+</div>
+
+<div class="resultado">
+<table>
+<thead>
+<tr>
+<th>Acréscimo</th>
+<th>Valor do acréscimo</th>
+<th>Valor total</th>
+<th>Entrada (10%)</th>
+<th>Saldo após entrada</th>
+<th>Parcelas</th>
+<th>Valor de cada parcela</th>
+</tr>
+</thead>
+<tbody id="resultados">
+<tr><td colspan="7" style="text-align:center">Informe a dívida e a quantidade de parcelas.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="print-only">
+    <div class="print-section-title">Simulação de Parcelamento — 1x a 12x</div>
+    <div class="print-table-wrap">
+        <table class="print-installments">
+            <thead>
+                <tr>
+                    <th>Acréscimo</th>
+                    <th>Valor total</th>
+                    <th>Entrada</th>
+                    <th>1x</th>
+                    <th>2x</th>
+                    <th>3x</th>
+                    <th>4x</th>
+                    <th>5x</th>
+                    <th>6x</th>
+                    <th>7x</th>
+                    <th>8x</th>
+                    <th>9x</th>
+                    <th>10x</th>
+                    <th>11x</th>
+                    <th>12x</th>
+                </tr>
+            </thead>
+            <tbody id="printResultados"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="aviso">
+Os percentuais são acrescentados ao valor original da dívida. A entrada corresponde a 10% do valor total já acrescido.
+</div>
+
+<div class="copyright">
+    © Anthony Carvalho Murray Pereira
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+const percentuais=[35,30,25,20,15,11];
+
+function numero(valor){
+    valor=String(valor).trim();
+    if(!valor)return 0;
+    if(valor.includes(',')) valor=valor.replace(/\./g,'').replace(',','.');
+    else valor=valor.replace(/[^\d.-]/g,'');
+    return parseFloat(valor)||0;
+}
+
+function moeda(valor){
+    return valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function calcular(){
+    const divida=numero(document.getElementById('divida').value);
+    const parcelas=parseInt(document.getElementById('parcelas').value);
+    const tbody=document.getElementById('resultados');
+
+    if(divida<=0||!parcelas||parcelas<1){
+        tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#b00020">Informe um valor de dívida e uma quantidade de parcelas válida.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML='';
+
+    const printTbody=document.getElementById('printResultados');
+    printTbody.innerHTML='';
+
+    percentuais.forEach(percentual=>{
+        const acrescimo=divida*(percentual/100);
+        const valorTotal=divida+acrescimo;
+        const entrada=valorTotal*0.10;
+        const saldo=valorTotal-entrada;
+        const valorParcela=saldo/parcelas;
+
+        const linha=document.createElement('tr');
+        linha.innerHTML=`
+            <td>${percentual}%</td>
+            <td>${moeda(valorTotal)}</td>
+            <td>${moeda(entrada)}</td>
+            <td>${moeda(saldo/1)}</td>
+            <td>${moeda(saldo/2)}</td>
+            <td>${moeda(saldo/3)}</td>
+            <td>${moeda(saldo/4)}</td>
+            <td>${moeda(saldo/5)}</td>
+            <td>${moeda(saldo/6)}</td>
+            <td>${moeda(saldo/7)}</td>
+            <td>${moeda(saldo/8)}</td>
+            <td>${moeda(saldo/9)}</td>
+            <td>${moeda(saldo/10)}</td>
+            <td>${moeda(saldo/11)}</td>
+            <td>${moeda(saldo/12)}</td>
+        `;
+        printTbody.appendChild(linha);
+
+        const linhaTela=document.createElement('tr');
+        linhaTela.innerHTML=`
+            <td>${percentual}%</td>
+            <td>${moeda(acrescimo)}</td>
+            <td class="destaque">${moeda(valorTotal)}</td>
+            <td class="destaque">${moeda(entrada)}</td>
+            <td>${moeda(saldo)}</td>
+            <td>${parcelas}x</td>
+            <td class="destaque">${moeda(valorParcela)}</td>
+        `;
+        tbody.appendChild(linhaTela);
+    });
+}
+
+document.getElementById('divida').addEventListener('input',calcular);
+document.getElementById('parcelas').addEventListener('input',calcular);
+</script>
+</body>
+</html>
