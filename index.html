@@ -422,6 +422,11 @@ td:nth-child(4){
 <label for="parcelas">Quantidade de parcelas</label>
 <input id="parcelas" type="number" min="1" step="1" placeholder="Ex.: 12">
 </div>
+
+<div class="input-box">
+<label for="entradaPersonalizada">Entrada do cliente (R$) — opcional</label>
+<input id="entradaPersonalizada" type="text" inputmode="decimal" placeholder="Deixe vazio para usar 10%">
+</div>
 </div>
 
 <div class="buttons">
@@ -478,7 +483,7 @@ td:nth-child(4){
 </div>
 
 <div class="aviso">
-Os percentuais são acrescentados ao valor original da dívida. Em 1x não há entrada; de 2x a 12x, a entrada corresponde a 10% do valor total já acrescido.
+Os percentuais são acrescentados ao valor original da dívida. Em 1x não há entrada. De 2x a 12x, a entrada mínima é 10% do valor total; se o cliente puder dar uma entrada maior, informe o valor no campo de entrada.
 </div>
 
 <div class="copyright">
@@ -507,6 +512,7 @@ function moeda(valor){
 function calcular(){
     const divida=numero(document.getElementById('divida').value);
     const parcelas=parseInt(document.getElementById('parcelas').value);
+    const entradaInformada=numero(document.getElementById('entradaPersonalizada').value);
     const tbody=document.getElementById('resultados');
 
     if(divida<=0||!parcelas||parcelas<1){
@@ -522,27 +528,34 @@ function calcular(){
     percentuais.forEach(percentual=>{
         const acrescimo=divida*(percentual/100);
         const valorTotal=divida+acrescimo;
-        const entrada=parcelas === 1 ? 0 : valorTotal*0.10;
+        const entradaMinima=valorTotal*0.10;
+        let entrada=0;
+        if(parcelas > 1){
+            entrada = entradaInformada > entradaMinima ? Math.min(entradaInformada,valorTotal) : entradaMinima;
+        }
         const saldo=parcelas === 1 ? valorTotal : valorTotal-entrada;
         const valorParcela=saldo/parcelas;
+
+        const entradaParaImpressao = entradaInformada > entradaMinima ? Math.min(entradaInformada,valorTotal) : entradaMinima;
+        const saldoImpressao = valorTotal-entradaParaImpressao;
 
         const linha=document.createElement('tr');
         linha.innerHTML=`
             <td>${percentual}%</td>
             <td>${moeda(valorTotal)}</td>
-            <td>${moeda(entrada)}</td>
+            <td>${moeda(entradaParaImpressao)}</td>
             <td>${moeda(valorTotal)}</td>
-            <td>${moeda(saldo/2)}</td>
-            <td>${moeda(saldo/3)}</td>
-            <td>${moeda(saldo/4)}</td>
-            <td>${moeda(saldo/5)}</td>
-            <td>${moeda(saldo/6)}</td>
-            <td>${moeda(saldo/7)}</td>
-            <td>${moeda(saldo/8)}</td>
-            <td>${moeda(saldo/9)}</td>
-            <td>${moeda(saldo/10)}</td>
-            <td>${moeda(saldo/11)}</td>
-            <td>${moeda(saldo/12)}</td>
+            <td>${moeda(saldoImpressao/2)}</td>
+            <td>${moeda(saldoImpressao/3)}</td>
+            <td>${moeda(saldoImpressao/4)}</td>
+            <td>${moeda(saldoImpressao/5)}</td>
+            <td>${moeda(saldoImpressao/6)}</td>
+            <td>${moeda(saldoImpressao/7)}</td>
+            <td>${moeda(saldoImpressao/8)}</td>
+            <td>${moeda(saldoImpressao/9)}</td>
+            <td>${moeda(saldoImpressao/10)}</td>
+            <td>${moeda(saldoImpressao/11)}</td>
+            <td>${moeda(saldoImpressao/12)}</td>
         `;
         printTbody.appendChild(linha);
 
@@ -562,6 +575,7 @@ function calcular(){
 
 document.getElementById('divida').addEventListener('input',calcular);
 document.getElementById('parcelas').addEventListener('input',calcular);
+document.getElementById('entradaPersonalizada').addEventListener('input',calcular);
 </script>
 </body>
 </html>
