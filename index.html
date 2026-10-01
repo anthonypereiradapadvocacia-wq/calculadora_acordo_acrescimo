@@ -431,7 +431,7 @@ td:nth-child(4){
 
 <div class="buttons">
 <button class="calcular" onclick="calcular()">Calcular</button>
-<button class="imprimir" onclick="window.print()">Imprimir</button>
+<button class="imprimir" onclick="salvarPDF()">Salvar em PDF</button>
 </div>
 
 <div class="resultado">
@@ -461,7 +461,7 @@ td:nth-child(4){
                 <tr>
                     <th>Acréscimo</th>
                     <th>Valor total</th>
-                    <th>Entrada</th>
+                    <th>Entrada (2x-12x)</th>
                     <th>1x</th>
                     <th>2x</th>
                     <th>3x</th>
@@ -507,6 +507,11 @@ function numero(valor){
 
 function moeda(valor){
     return valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function salvarPDF(){
+    calcular();
+    setTimeout(()=>window.print(),100);
 }
 
 function calcular(){
