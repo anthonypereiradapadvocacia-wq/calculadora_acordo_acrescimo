@@ -457,6 +457,13 @@ td:nth-child(4){
   @page{size:A4 portrait;margin:16mm}
 }
 
+
+/* Descritivo para boleto */
+.descritivo-preview{margin-top:20px;padding:18px 20px;border:1px solid #dfe5ee;border-radius:12px;background:#f8fafc}
+.descritivo-label{font-size:11px;font-weight:800;letter-spacing:.5px;color:#64748b;margin-bottom:10px}
+#descritivoTexto{background:#fff;border:1px solid #d9e0e8;border-radius:9px;padding:16px;font-size:15px;line-height:1.65;color:#1f2937;min-height:74px}
+#navDescritivo{white-space:nowrap}
+@media(max-width:700px){#navDescritivo{white-space:normal}.descritivo-preview{padding:14px}}
 </style>
 </head>
 <body>
@@ -470,6 +477,7 @@ td:nth-child(4){
 <div class="app-nav">
     <button id="navCalculadora" class="active" type="button" onclick="mostrarPagina('calculadora')">Calculadora</button>
     <button id="navAcordo" type="button" onclick="mostrarPagina('acordo')">📄 Gerar Acordo</button>
+    <button id="navDescritivo" type="button" onclick="mostrarPagina('descritivo')">🧾 Descritivo Boleto</button>
 </div>
 
 <div class="content">
@@ -612,6 +620,47 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
 
 O PDF será gerado em uma página simples, contendo apenas o valor total, o valor da entrada, o parcelamento e as respectivas datas de vencimento.
 </div>
+</div>
+
+<div id="paginaDescritivo" class="app-page">
+    <div class="acordo-form">
+        <div class="input-box full">
+            <label for="descTotal">Valor total do acordo</label>
+            <input id="descTotal" type="text" inputmode="decimal" placeholder="R$ 5.000,00">
+        </div>
+
+        <div class="input-box">
+            <label for="descEntrada">Valor da entrada</label>
+            <input id="descEntrada" type="text" inputmode="decimal" placeholder="R$ 500,00">
+        </div>
+
+        <div class="input-box">
+            <label for="descParcelas">Quantidade de parcelas</label>
+            <input id="descParcelas" type="number" min="1" step="1" placeholder="Ex.: 5">
+        </div>
+
+        <div class="input-box">
+            <label for="descValorParcela">Valor de cada parcela</label>
+            <input id="descValorParcela" type="text" readonly placeholder="R$ 900,00">
+        </div>
+
+        <div class="input-box">
+            <label for="descData">Data de referência</label>
+            <input id="descData" type="date">
+        </div>
+    </div>
+
+    <div class="acordo-actions">
+        <button class="calcular" type="button" onclick="gerarDescritivo()">Gerar descritivo</button>
+        <button class="imprimir" type="button" onclick="copiarDescritivo()">📋 Copiar descritivo</button>
+    </div>
+
+    <div class="descritivo-preview">
+        <div class="descritivo-label">DESCRITIVO PARA BOLETO DE ENTRADA</div>
+        <div id="descritivoTexto">Preencha os valores acima para gerar o descritivo.</div>
+    </div>
+
+    <div class="aviso" style="margin-top:18px">O texto é gerado automaticamente no formato de cobrança para a entrada do acordo e pode ser copiado diretamente para a descrição do boleto.</div>
 </div>
 
 </div>
@@ -763,13 +812,17 @@ document.getElementById('acordoParcelas').addEventListener('input', atualizarVal
 function mostrarPagina(pagina){
     const calculadora=document.getElementById('paginaCalculadora');
     const acordo=document.getElementById('paginaAcordo');
+    const descritivo=document.getElementById('paginaDescritivo');
     const navCalc=document.getElementById('navCalculadora');
     const navAcordo=document.getElementById('navAcordo');
-    const isCalc=pagina==='calculadora';
-    calculadora.classList.toggle('active',isCalc);
-    acordo.classList.toggle('active',!isCalc);
-    navCalc.classList.toggle('active',isCalc);
-    navAcordo.classList.toggle('active',!isCalc);
+    const navDescritivo=document.getElementById('navDescritivo');
+    calculadora.classList.toggle('active',pagina==='calculadora');
+    acordo.classList.toggle('active',pagina==='acordo');
+    descritivo.classList.toggle('active',pagina==='descritivo');
+    navCalc.classList.toggle('active',pagina==='calculadora');
+    navAcordo.classList.toggle('active',pagina==='acordo');
+    navDescritivo.classList.toggle('active',pagina==='descritivo');
+    if(pagina==='descritivo') preencherDescritivoComAcordo();
 }
 
 function formatarDataBR(data){
@@ -825,6 +878,78 @@ function gerarPDFAcordo(){
     setTimeout(()=>window.print(),100);
 }
 
+
+function preencherDescritivoComAcordo(){
+    const acordoTotal=document.getElementById('acordoTotal');
+    const acordoEntrada=document.getElementById('acordoEntrada');
+    const acordoParcelas=document.getElementById('acordoParcelas');
+    const acordoValor=document.getElementById('acordoValorParcela');
+    const total=document.getElementById('descTotal');
+    const entrada=document.getElementById('descEntrada');
+    const parcelas=document.getElementById('descParcelas');
+    const valor=document.getElementById('descValorParcela');
+    if(acordoTotal && numero(acordoTotal.value)>0) total.value=acordoTotal.value;
+    if(acordoEntrada && numero(acordoEntrada.value)>0) entrada.value=acordoEntrada.value;
+    if(acordoParcelas && parseInt(acordoParcelas.value)>0) parcelas.value=acordoParcelas.value;
+    if(acordoValor && acordoValor.value) valor.value=acordoValor.value;
+    definirDataDescritivo();
+    atualizarDescritivo();
+}
+
+function definirDataDescritivo(){
+    const campo=document.getElementById('descData');
+    if(!campo.value){
+        const d=new Date();
+        const ano=d.getFullYear();
+        const mes=String(d.getMonth()+1).padStart(2,'0');
+        const dia=String(d.getDate()).padStart(2,'0');
+        campo.value=`${ano}-${mes}-${dia}`;
+    }
+}
+
+function atualizarDescritivo(){
+    const total=numero(document.getElementById('descTotal').value);
+    const entrada=numero(document.getElementById('descEntrada').value);
+    const qtd=parseInt(document.getElementById('descParcelas').value)||0;
+    const campoValor=document.getElementById('descValorParcela');
+    const campoTexto=document.getElementById('descritivoTexto');
+    if(total>0 && qtd>0 && entrada>=0 && entrada<=total){
+        const parcela=(total-entrada)/qtd;
+        campoValor.value=moeda(parcela);
+        const data=document.getElementById('descData').value;
+        const dataBR=formatarDataBR(data);
+        campoTexto.textContent=`Entrada referente ao acordo no valor total de ${moeda(total)} até a data de ${dataBR}, sendo ${moeda(entrada)} de entrada e saldo remanescente parcelado em ${qtd} ${qtd===1?'vez':'vezes'} de ${moeda(parcela)}.`;
+    }else{
+        campoValor.value='';
+        campoTexto.textContent='Preencha os valores acima para gerar o descritivo.';
+    }
+}
+
+function gerarDescritivo(){
+    definirDataDescritivo();
+    atualizarDescritivo();
+}
+
+function copiarDescritivo(){
+    definirDataDescritivo();
+    atualizarDescritivo();
+    const texto=document.getElementById('descritivoTexto').textContent;
+    if(texto.startsWith('Preencha os valores')){
+        alert('Preencha os valores do acordo antes de copiar o descritivo.');
+        return;
+    }
+    navigator.clipboard.writeText(texto).then(()=>alert('Descritivo copiado!')).catch(()=>{
+        const area=document.createElement('textarea');
+        area.value=texto; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove();
+        alert('Descritivo copiado!');
+    });
+}
+
+['descTotal','descEntrada','descParcelas','descData'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',atualizarDescritivo);
+    document.getElementById(id).addEventListener('change',atualizarDescritivo);
+});
+
 function definirVencimentoPadrao(){
     const campo=document.getElementById('acordoVencimento');
     if(!campo || campo.value) return;
@@ -838,6 +963,7 @@ function definirVencimentoPadrao(){
 }
 
 definirVencimentoPadrao();
+definirDataDescritivo();
 window.addEventListener('afterprint',()=>document.body.classList.remove('imprimir-acordo'));
 </script>
 </body>
