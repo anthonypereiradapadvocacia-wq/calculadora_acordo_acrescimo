@@ -426,6 +426,37 @@ td:nth-child(4){
 .acrescimos-box{padding-bottom:6px}
 .buttons{margin-top:5px;margin-bottom:28px;gap:9px}
 .buttons button{padding:11px 20px;font-size:13px}
+
+/* Navegação entre páginas */
+.app-nav{display:flex;gap:8px;padding:12px 35px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.app-nav button{padding:8px 14px;font-size:12px;border:1px solid #d6dde7;background:#fff;color:#334155;border-radius:7px}
+.app-nav button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.app-page{display:none}
+.app-page.active{display:block}
+.acordo-form{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.acordo-form .input-box{padding:15px}
+.acordo-form .full{grid-column:1/-1}
+.acordo-actions{display:flex;gap:10px;margin-top:22px}
+.voltar-calculadora{background:#fff;border:1px solid #d1d5db;color:#334155}
+.acordo-pdf{max-width:820px;margin:0 auto;padding:42px 48px;background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+.acordo-pdf h2{text-align:center;color:var(--navy);margin:0 0 28px;font-size:24px;letter-spacing:.5px}
+.acordo-linha{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid #e5e7eb}
+.acordo-linha span:first-child{color:#64748b;font-size:13px;font-weight:700;text-transform:uppercase}
+.acordo-linha strong{color:var(--navy);font-size:16px;text-align:right}
+.acordo-data{margin-top:35px;text-align:right;color:#475569;font-size:13px}
+.acordo-assinatura{margin-top:85px;text-align:center;color:#334155}
+.acordo-assinatura .linha{width:280px;border-top:1px solid #334155;margin:0 auto 8px}
+.acordo-rodape{margin-top:55px;text-align:center;font-size:10px;color:#94a3b8}
+.acordo-form input{font-size:16px}
+@media(max-width:700px){.acordo-form{grid-template-columns:1fr}.acordo-form .full{grid-column:auto}.app-nav{padding:10px 18px}.content{padding:22px 18px 28px}}
+@media print{
+  body.imprimir-acordo .container{display:none!important}
+  body.imprimir-acordo .acordo-print-root{display:block!important}
+  body.imprimir-acordo{background:#fff}
+  .acordo-print-root{display:none}
+  @page{size:A4 portrait;margin:16mm}
+}
+
 </style>
 </head>
 <body>
@@ -436,7 +467,13 @@ td:nth-child(4){
     <p>Simulação de valores, entrada e parcelamento</p>
 </div>
 
+<div class="app-nav">
+    <button id="navCalculadora" class="active" type="button" onclick="mostrarPagina('calculadora')">Calculadora</button>
+    <button id="navAcordo" type="button" onclick="mostrarPagina('acordo')">📄 Gerar Acordo</button>
+</div>
+
 <div class="content">
+<div id="paginaCalculadora" class="app-page active">
 <div class="inputs">
 <div class="input-box">
 <label for="divida">Valor da dívida (R$)</label>
@@ -531,9 +568,68 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
 <div class="copyright">
     © Anthony Carvalho Murray Pereira
 </div>
+</div>
+
+<div id="paginaAcordo" class="app-page">
+    <div class="acordo-form">
+        <div class="input-box full">
+            <label for="acordoCliente">Nome do cliente</label>
+            <input id="acordoCliente" type="text" placeholder="Ex.: João da Silva">
+        </div>
+
+        <div class="input-box">
+            <label for="acordoTotal">Valor total acordado</label>
+            <input id="acordoTotal" type="text" inputmode="decimal" placeholder="R$ 5.000,00">
+        </div>
+
+        <div class="input-box">
+            <label for="acordoEntrada">Entrada escolhida</label>
+            <input id="acordoEntrada" type="text" inputmode="decimal" placeholder="R$ 500,00">
+        </div>
+
+        <div class="input-box">
+            <label for="acordoParcelas">Quantidade de parcelas</label>
+            <input id="acordoParcelas" type="number" min="1" step="1" placeholder="Ex.: 5">
+        </div>
+
+        <div class="input-box">
+            <label for="acordoValorParcela">Valor de cada parcela</label>
+            <input id="acordoValorParcela" type="text" inputmode="decimal" placeholder="R$ 900,00">
+        </div>
+
+        <div class="input-box full">
+            <label for="acordoVencimento">Vencimento</label>
+            <input id="acordoVencimento" type="date">
+        </div>
+    </div>
+
+    <div class="acordo-actions">
+        <button class="calcular" type="button" onclick="preencherAcordoAutomaticamente()">Calcular parcela</button>
+        <button class="imprimir" type="button" onclick="gerarPDFAcordo()">📄 Gerar PDF do Acordo</button>
+    </div>
+
+    <div class="aviso" style="margin-top:22px">Preencha os dados que foram combinados com o cliente. O PDF será gerado em uma página simples, com o valor total, entrada, parcelamento e vencimento.</div>
+</div>
 
 </div>
 </div>
+</div>
+
+<div id="acordoPrintRoot" class="acordo-print-root">
+    <div class="acordo-pdf">
+        <h2>ACORDO DE PAGAMENTO</h2>
+        <div class="acordo-linha"><span>Cliente</span><strong id="pdfCliente">—</strong></div>
+        <div class="acordo-linha"><span>Valor total acordado</span><strong id="pdfTotal">—</strong></div>
+        <div class="acordo-linha"><span>Entrada escolhida</span><strong id="pdfEntrada">—</strong></div>
+        <div class="acordo-linha"><span>Parcelamento</span><strong id="pdfParcelamento">—</strong></div>
+        <div class="acordo-linha"><span>Vencimento</span><strong id="pdfVencimento">—</strong></div>
+        <div class="acordo-data">Data do acordo: <strong id="pdfData">—</strong></div>
+        <div class="acordo-assinatura">
+            <div class="linha"></div>
+            Cliente
+        </div>
+        <div class="acordo-rodape">© Anthony Carvalho Murray Pereira</div>
+    </div>
 </div>
 
 <script>
@@ -647,6 +743,68 @@ document.getElementById('entradaPersonalizada').addEventListener('input',calcula
 document.querySelectorAll('.percentual-check').forEach(el=>{
     el.addEventListener('change',calcular);
 });
+
+function mostrarPagina(pagina){
+    const calculadora=document.getElementById('paginaCalculadora');
+    const acordo=document.getElementById('paginaAcordo');
+    const navCalc=document.getElementById('navCalculadora');
+    const navAcordo=document.getElementById('navAcordo');
+    const isCalc=pagina==='calculadora';
+    calculadora.classList.toggle('active',isCalc);
+    acordo.classList.toggle('active',!isCalc);
+    navCalc.classList.toggle('active',isCalc);
+    navAcordo.classList.toggle('active',!isCalc);
+}
+
+function formatarDataBR(data){
+    if(!data) return '—';
+    const [ano,mes,dia]=data.split('-');
+    return `${dia}/${mes}/${ano}`;
+}
+
+function preencherAcordoAutomaticamente(){
+    const total=numero(document.getElementById('acordoTotal').value);
+    const entrada=numero(document.getElementById('acordoEntrada').value);
+    const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
+    if(total<=0 || qtd<=0){
+        alert('Informe o valor total acordado e a quantidade de parcelas.');
+        return;
+    }
+    const saldo=Math.max(0,total-entrada);
+    document.getElementById('acordoValorParcela').value=moeda(saldo/qtd);
+}
+
+function gerarPDFAcordo(){
+    const cliente=document.getElementById('acordoCliente').value.trim();
+    const total=numero(document.getElementById('acordoTotal').value);
+    const entrada=numero(document.getElementById('acordoEntrada').value);
+    const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
+    let valorParcela=numero(document.getElementById('acordoValorParcela').value);
+    const vencimento=document.getElementById('acordoVencimento').value;
+
+    if(!cliente || total<=0 || entrada<0 || qtd<=0 || !vencimento){
+        alert('Preencha nome do cliente, valor total, entrada, quantidade de parcelas e vencimento.');
+        return;
+    }
+
+    if(valorParcela<=0){
+        const saldo=Math.max(0,total-entrada);
+        valorParcela=saldo/qtd;
+        document.getElementById('acordoValorParcela').value=moeda(valorParcela);
+    }
+
+    document.getElementById('pdfCliente').textContent=cliente;
+    document.getElementById('pdfTotal').textContent=moeda(total);
+    document.getElementById('pdfEntrada').textContent=moeda(entrada);
+    document.getElementById('pdfParcelamento').textContent=`${qtd}x de ${moeda(valorParcela)}`;
+    document.getElementById('pdfVencimento').textContent=formatarDataBR(vencimento);
+    document.getElementById('pdfData').textContent=new Date().toLocaleDateString('pt-BR');
+
+    document.body.classList.add('imprimir-acordo');
+    setTimeout(()=>window.print(),100);
+}
+
+window.addEventListener('afterprint',()=>document.body.classList.remove('imprimir-acordo'));
 </script>
 </body>
 </html>
