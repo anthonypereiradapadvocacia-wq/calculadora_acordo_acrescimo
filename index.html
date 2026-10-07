@@ -402,6 +402,23 @@ td:nth-child(4){
         display:none;
     }
 }
+
+ .acrescimos-box{
+    margin-top:18px;
+    padding:18px;
+    border:1px solid #dfe5ee;
+    border-radius:12px;
+    background:#f8fafc;
+}
+.acrescimos-titulo{font-weight:800;color:#102a43;font-size:16px;margin-bottom:4px}
+.acrescimos-subtitulo{font-size:13px;color:#64748b;margin-bottom:13px;line-height:1.5}
+.percentuais{display:flex;flex-wrap:wrap;gap:9px}
+.percentual-option{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid #d7dee8;border-radius:9px;background:#fff;color:#26374a;font-weight:700;font-size:13px;cursor:pointer}
+.percentual-option input{accent-color:#b58b3a;cursor:pointer}
+.percentual-option.sem-acrescimo{border-color:#8fa3b8;background:#f1f5f9}
+.percentuais-acoes{display:flex;gap:8px;margin-top:12px}
+.percentuais-acoes button{border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:7px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer}
+.percentuais-acoes button:hover{background:#eef2f7} .acrescimos-box{max-width:620px;padding:8px 10px}.acrescimos-titulo{font-size:12px}.acrescimos-subtitulo{font-size:9px;margin-bottom:6px}.percentuais{gap:4px}.percentual-option{padding:4px 7px;font-size:10px;gap:4px;border-radius:6px}.percentuais-acoes{margin-top:5px}.percentuais-acoes button{padding:4px 7px;font-size:10px}
 </style>
 </head>
 <body>
@@ -427,6 +444,24 @@ td:nth-child(4){
 <label for="entradaPersonalizada">Entrada do cliente (R$) — opcional</label>
 <input id="entradaPersonalizada" type="text" inputmode="decimal" placeholder="Deixe vazio para usar 10%">
 </div>
+</div>
+
+<div class="acrescimos-box">
+    <div class="acrescimos-titulo">Tipo de cobrança</div>
+    <div class="acrescimos-subtitulo">Selecione os acréscimos que deseja apresentar na negociação. Para cobrar <strong>sem juros/acréscimo</strong>, marque a opção abaixo.</div>
+    <div class="percentuais">
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="35"> 35%</label>
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="30"> 30%</label>
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="25"> 25%</label>
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="20"> 20%</label>
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="15"> 15%</label>
+        <label class="percentual-option"><input type="checkbox" class="percentual-check" value="11"> 11%</label>
+        <label class="percentual-option sem-acrescimo"><input type="checkbox" class="percentual-check" value="0"> Sem acréscimo (0%)</label>
+    </div>
+    <div class="percentuais-acoes">
+        <button type="button" onclick="selecionarTodosPercentuais()">Selecionar todos</button>
+        <button type="button" onclick="desmarcarTodosPercentuais()">Desmarcar todos</button>
+    </div>
 </div>
 
 <div class="buttons">
@@ -483,7 +518,7 @@ td:nth-child(4){
 </div>
 
 <div class="aviso">
-Os percentuais são acrescentados ao valor original da dívida. Em 1x não há entrada. De 2x a 12x, a entrada mínima é 10% do valor total; se o cliente puder dar uma entrada maior, informe o valor no campo de entrada.
+Os percentuais selecionados são acrescentados ao valor original da dívida. A opção “Sem acréscimo” mantém o valor original da dívida. Em 1x não há entrada. De 2x a 12x, a entrada mínima é 10% do valor total; se o cliente puder dar uma entrada maior, informe o valor no campo de entrada.
 </div>
 
 <div class="copyright">
@@ -496,6 +531,20 @@ Os percentuais são acrescentados ao valor original da dívida. Em 1x não há e
 
 <script>
 const percentuais=[35,30,25,20,15,11];
+
+function percentuaisSelecionados(){
+    return [...document.querySelectorAll('.percentual-check:checked')].map(el=>Number(el.value)).sort((a,b)=>b-a);
+}
+
+function selecionarTodosPercentuais(){
+    document.querySelectorAll('.percentual-check').forEach(el=>el.checked=true);
+    calcular();
+}
+
+function desmarcarTodosPercentuais(){
+    document.querySelectorAll('.percentual-check').forEach(el=>el.checked=false);
+    calcular();
+}
 
 function numero(valor){
     valor=String(valor).trim();
@@ -530,7 +579,14 @@ function calcular(){
     const printTbody=document.getElementById('printResultados');
     printTbody.innerHTML='';
 
-    percentuais.forEach(percentual=>{
+    const selecionados=percentuaisSelecionados();
+
+    if(!selecionados.length){
+        tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b">Selecione pelo menos um tipo de cobrança.</td></tr>';
+        return;
+    }
+
+    selecionados.forEach(percentual=>{
         const acrescimo=divida*(percentual/100);
         const valorTotal=divida+acrescimo;
         const entradaMinima=valorTotal*0.10;
@@ -546,7 +602,7 @@ function calcular(){
 
         const linha=document.createElement('tr');
         linha.innerHTML=`
-            <td>${percentual}%</td>
+            <td>${percentual === 0 ? 'Sem acréscimo' : percentual + '%'}</td>
             <td>${moeda(valorTotal)}</td>
             <td>${moeda(entradaParaImpressao)}</td>
             <td>${moeda(valorTotal)}</td>
@@ -566,7 +622,7 @@ function calcular(){
 
         const linhaTela=document.createElement('tr');
         linhaTela.innerHTML=`
-            <td>${percentual}%</td>
+            <td>${percentual === 0 ? 'Sem acréscimo' : percentual + '%'}</td>
             <td>${moeda(acrescimo)}</td>
             <td class="destaque">${moeda(valorTotal)}</td>
             <td class="destaque">${moeda(entrada)}</td>
@@ -581,6 +637,9 @@ function calcular(){
 document.getElementById('divida').addEventListener('input',calcular);
 document.getElementById('parcelas').addEventListener('input',calcular);
 document.getElementById('entradaPersonalizada').addEventListener('input',calcular);
+document.querySelectorAll('.percentual-check').forEach(el=>{
+    el.addEventListener('change',calcular);
+});
 </script>
 </body>
 </html>
