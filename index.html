@@ -594,7 +594,7 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
 
         <div class="input-box">
             <label for="acordoValorParcela">Valor de cada parcela</label>
-            <input id="acordoValorParcela" type="text" inputmode="decimal" placeholder="R$ 900,00">
+            <input id="acordoValorParcela" type="text" inputmode="decimal" placeholder="R$ 900,00" readonly>
         </div>
 
         <div class="input-box full">
@@ -624,11 +624,6 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
         <div class="acordo-linha"><span>Parcelamento</span><strong id="pdfParcelamento">—</strong></div>
         <div class="acordo-linha"><span>Vencimento</span><strong id="pdfVencimento">—</strong></div>
         <div class="acordo-data">Data do acordo: <strong id="pdfData">—</strong></div>
-        <div class="acordo-assinatura">
-            <div class="linha"></div>
-            Cliente
-        </div>
-        <div class="acordo-rodape">© Anthony Carvalho Murray Pereira</div>
     </div>
 </div>
 
@@ -744,6 +739,24 @@ document.querySelectorAll('.percentual-check').forEach(el=>{
     el.addEventListener('change',calcular);
 });
 
+// Calcula automaticamente o valor de cada parcela enquanto os dados são preenchidos.
+function atualizarValorParcelaAcordo(){
+    const total=numero(document.getElementById('acordoTotal').value);
+    const entrada=numero(document.getElementById('acordoEntrada').value);
+    const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
+    const campo=document.getElementById('acordoValorParcela');
+
+    if(total>0 && qtd>0 && entrada>=0 && entrada<=total){
+        campo.value=moeda((total-entrada)/qtd);
+    } else {
+        campo.value='';
+    }
+}
+
+document.getElementById('acordoTotal').addEventListener('input', atualizarValorParcelaAcordo);
+document.getElementById('acordoEntrada').addEventListener('input', atualizarValorParcelaAcordo);
+document.getElementById('acordoParcelas').addEventListener('input', atualizarValorParcelaAcordo);
+
 function mostrarPagina(pagina){
     const calculadora=document.getElementById('paginaCalculadora');
     const acordo=document.getElementById('paginaAcordo');
@@ -770,8 +783,13 @@ function preencherAcordoAutomaticamente(){
         alert('Informe o valor total acordado e a quantidade de parcelas.');
         return;
     }
-    const saldo=Math.max(0,total-entrada);
-    document.getElementById('acordoValorParcela').value=moeda(saldo/qtd);
+    if(entrada<0 || entrada>total){
+        alert('A entrada não pode ser menor que zero nem maior que o valor total.');
+        return;
+    }
+    const saldo=total-entrada;
+    const valorParcela=saldo/qtd;
+    document.getElementById('acordoValorParcela').value=moeda(valorParcela);
 }
 
 function gerarPDFAcordo(){
@@ -804,6 +822,19 @@ function gerarPDFAcordo(){
     setTimeout(()=>window.print(),100);
 }
 
+function definirVencimentoPadrao(){
+    const campo=document.getElementById('acordoVencimento');
+    if(!campo || campo.value) return;
+    const data=new Date();
+    data.setHours(12,0,0,0);
+    data.setDate(data.getDate()+30);
+    const ano=data.getFullYear();
+    const mes=String(data.getMonth()+1).padStart(2,'0');
+    const dia=String(data.getDate()).padStart(2,'0');
+    campo.value=`${ano}-${mes}-${dia}`;
+}
+
+definirVencimentoPadrao();
 window.addEventListener('afterprint',()=>document.body.classList.remove('imprimir-acordo'));
 </script>
 </body>
