@@ -668,25 +668,32 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
 
 <div id="paginaConfissao" class="app-page">
   <div class="confissao-form">
-    <div class="input-box full"><label>Nome do devedor</label><input id="confNome" type="text" placeholder="Nome completo"></div>
-    <div class="input-box"><label>RG</label><input id="confRG" type="text"></div>
-    <div class="input-box"><label>CPF</label><input id="confCPF" type="text"></div>
-    <div class="input-box full"><label>Endereço</label><input id="confEndereco" type="text"></div>
-    <div class="input-box"><label>Bairro</label><input id="confBairro" type="text"></div>
-    <div class="input-box"><label>CEP</label><input id="confCEP" type="text"></div>
-    <div class="input-box"><label>Cidade</label><input id="confCidade" type="text"></div>
-    <div class="input-box"><label>Valor total da dívida</label><input id="confTotal" type="text" inputmode="decimal" placeholder="R$ 5.000,00"></div>
-    <div class="input-box full"><label>Valor por extenso</label><input id="confExtenso" type="text" placeholder="Cinco mil reais"></div>
-    <div class="input-box full"><label>Referente a / descrição</label><input id="confReferencia" type="text" placeholder="Honorários / serviços / processos"></div>
-    <div class="input-box full"><label>Parcelas e vencimentos</label><textarea id="confParcelas" rows="5" placeholder="Parcela 01 - R$ 1.000,00 - DIA 10/11/2026&#10;Parcela 02 - R$ 800,00 - DIA 10/12/2026"></textarea></div>
-    <div class="input-box"><label>Data do documento</label><input id="confData" type="date"></div>
+    <div class="input-box full"><label for="confNome">Nome do devedor</label><input id="confNome" type="text" placeholder="Nome completo"></div>
+    <div class="input-box"><label for="confEstadoCivil">Estado civil</label><input id="confEstadoCivil" type="text" placeholder="Ex.: solteiro(a)"></div>
+    <div class="input-box"><label for="confProfissao">Profissão</label><input id="confProfissao" type="text" placeholder="Ex.: autônomo(a)"></div>
+    <div class="input-box full"><label for="confEmail">E-mail</label><input id="confEmail" type="email" placeholder="cliente@email.com"></div>
+    <div class="input-box"><label for="confCPF">CPF</label><input id="confCPF" type="text"></div>
+    <div class="input-box"><label for="confRG">RG</label><input id="confRG" type="text"></div>
+    <div class="input-box full"><label for="confEndereco">Endereço completo</label><input id="confEndereco" type="text" placeholder="Rua, número, complemento, bairro"></div>
+    <div class="input-box"><label for="confCidadeUF">Cidade/UF</label><input id="confCidadeUF" type="text" placeholder="Rio de Janeiro/RJ"></div>
+    <div class="input-box"><label for="confCEP">CEP</label><input id="confCEP" type="text"></div>
+    <div class="input-box"><label for="confTotal">Valor total da dívida</label><input id="confTotal" type="text" inputmode="decimal" placeholder="R$ 5.000,00"></div>
+    <div class="input-box"><label for="confExtenso">Valor por extenso</label><input id="confExtenso" type="text" placeholder="Cinco mil reais"></div>
+    <div class="input-box"><label for="confForma">Forma de pagamento</label><input id="confForma" type="text" placeholder="parcelamento / pagamento integral"></div>
+    <div class="input-box full"><label for="confParcelas">Parcelas e vencimentos</label><textarea id="confParcelas" rows="5" placeholder="Parcela 01 - R$ 1.000,00 - vencimento em 10/11/2026"></textarea></div>
+    <div class="input-box full"><label for="confMeioPagamento">Meio de pagamento</label><input id="confMeioPagamento" type="text" value="PIX emitido pelo ASAAS"></div>
+    <div class="input-box"><label for="confPercentuais">Juros e multa</label><input id="confPercentuais" type="text" placeholder="Ex.: conforme pactuado"></div>
+    <div class="input-box"><label for="confData">Data do documento</label><input id="confData" type="date"></div>
   </div>
   <div class="confissao-actions">
+    <button class="calcular" type="button" onclick="preencherConfissaoComAcordo();atualizarConfissao()">Preencher com o acordo</button>
     <button class="calcular" type="button" onclick="atualizarConfissao()">Atualizar documento</button>
     <button class="imprimir" type="button" onclick="gerarPDFConfissao()">📄 Gerar PDF da Confissão</button>
   </div>
-  <div class="aviso" style="margin-top:18px">Os campos abaixo são apenas os dados variáveis do documento enviado. O corpo das cláusulas é preservado como modelo.</div>
+  <div class="aviso" style="margin-top:18px">Os campos desta tela correspondem aos campos variáveis do instrumento enviado. O texto das cláusulas é mantido conforme o documento-base.</div>
   <div class="confissao-preview"><h2>INSTRUMENTO PARTICULAR DE CONFISSÃO DE DÍVIDA</h2><div id="confPreview"></div></div>
+</div>
+
 </div>
 
 </div>
@@ -1029,35 +1036,43 @@ function copiarDescritivo(){
     document.getElementById(id).addEventListener('change',atualizarDescritivo);
 });
 
-const confissaoTemplate = `INSTRUMENTO PARTICULAR DE CONFISSÃO DE DÍVIDA
+const confissaoTemplate = `DEVEDOR: {{DEVEDOR_NOME}}, {{ESTADO_CIVIL}}, {{PROFISSAO}}, e-mail {{EMAIL}}, inscrito(a) no CPF sob nº {{DEVEDOR_CPF}}, portador(a) do RG nº {{DEVEDOR_RG}}, residente e domiciliado(a) na {{DEVEDOR_ENDERECO}}, {{CIDADE_UF}}, {{CEP}}.
 
-DEVEDOR: {{DEVEDOR_NOME}}, brasileiro,Casado, Autonômo, portador da cédula de identidade nº. {{DEVEDOR_RG}}, e do CPF n.º {{DEVEDOR_CPF}}, situado(a) na {{DEVEDOR_ENDERECO}}, bairro {{DEVEDOR_BAIRRO}}, CEP {{DEVEDOR_CEP}}, cidade de {{DEVEDOR_CIDADE}}.
-
-CREDOR: PONTES LEAL ADVOCACIA inscrita no CNPJ/MF sob o nº: 10.615.803/0001-
-
-04, com sede na cidade de Rio de Janeiro/RJ, Av. das Américas, 3443 - edifício 4A - Barra da Tijuca, Rio de Janeiro - RJ, 22631-003
+CREDOR: DURÃO & ALMEIDA, PONTES, inscrita no CNPJ/MF sob o nº 10.615.803/0001-04, com sede na cidade de Rio de Janeiro/RJ, Av. das Américas, 3443 - edifício 4A - Barra da Tijuca, Rio de Janeiro - RJ, 22631-003.
 
 As partes acima identificadas possuem entre si, justo e acertado o presente Instrumento Particular de Confissão de Dívida, que se regerá pelas cláusulas abaixo descritas:
 
-Cláusula 1º.: O DEVEDOR confessa ser devedor da quantia abaixo descrita e se compromete a efetuar o integral pagamento da dívida, através das condições previstas neste Instrumento Particular de Confissão de Dívida.
+Cláusula 1ª: O DEVEDOR confessa ser devedor da quantia abaixo descrita e se compromete a efetuar o integral pagamento da dívida, através das condições previstas neste Instrumento Particular de Confissão de Dívida.
 
-Cláusula 2º.: O DEVEDOR reconhece expressamente ser devedor do montante de {{VALOR_TOTAL}} ({{VALOR_EXTENSO}}) Referente aos Honorários, até a presente data, Referente aos processos 0034530-35.2025.8.16.0001 /  0018304-55.2025.8.16.0194, sendo o pagamento efetuado em 3 parcelas descritas abaixo.
+Cláusula 2ª: Do reconhecimento do débito e da forma de pagamento {{FORMA_PAGAMENTO}}. A PARTE DEVEDORA reconhece expressamente ser devedora do montante total de R$ {{VALOR_NUMERICO}} ({{VALOR_EXTENSO}}), comprometendo-se a efetuar o pagamento por meio de {{MEIO_PAGAMENTO}}, da seguinte forma:
 
 {{PARCELAS}}
 
-Podendo ser pago o valor total adiantado em caso de finalização de acordo extrajudicial.
+O pagamento será efetuado através do {{MEIO_PAGAMENTO}} no dia acima indicado.
 
-Cláusula 3º: Os pagamentos deverão ser efetuados por boleto bancário/Pix emitido pelo ASAAS.
+Cláusula 3ª: Os pagamentos deverão ser efetuados por {{MEIO_PAGAMENTO}}. Cumpre esclarecer que os valores mencionados na Confissão de Dívida referem-se exclusivamente aos débitos já vencidos até a presente data, não implicando novação, quitação ou anulação das parcelas vincendas previstas nos contratos originários firmados entre as partes, as quais permanecerão devidas em seus respectivos vencimentos, conforme originalmente pactuado.
 
-Cláusula 4º: O não cumprimento de qualquer das parcelas nas datas e formas acordadas, implicarão independentemente do motivo, no vencimento antecipado das demais parcelas, facultando-se o CREDOR tomar as cautelas judiciais cabíveis visando a satisfação de seu crédito. Caso não cumpra com o acordado pagamento integral da dívida atualizado com juros e multa de acordo com a tabela IGP-M, poderá resultar em penhora de bens, bloqueio de contas e execução judicial, penhoras de bens de parentes ou familiares e bloqueio de valores em conta salário.
+Cláusula 4ª: O não cumprimento de qualquer das parcelas nas datas e formas acordadas, implicará, independentemente do motivo, o vencimento antecipado das demais parcelas, facultando-se ao CREDOR tomar as cautelas judiciais cabíveis visando a satisfação de seu crédito. Caso o DEVEDOR não cumpra o acordado, o valor integral da dívida, atualizado monetariamente pelo IGP-M e acrescido de juros e multa de {{PERCENTUAIS}}, poderá ser cobrado judicialmente, inclusive por meio de execução, com a penhora de bens e o bloqueio de valores do DEVEDOR, observadas as hipóteses legais de impenhorabilidade.
 
-Cláusula 5º: Diante da avença, convencionam as partes que o DEVEDOR arcará com o
+Cláusula 5ª: Diante da avença, convencionam as partes que o DEVEDOR arcará com o pagamento de eventuais custas processuais e despesas remanescentes.
 
-pagamento de eventuais custas processuais e despesas remanescentes.
+Cláusula 6ª: O presente Instrumento Particular de Confissão de Dívida passa a vigorar a partir da assinatura do mesmo.
 
-Cláusula 6º: O presente Instrumento Particular de Confissão de Dívida passa a vigorar a partir da assinatura do mesmo.
+Rio de Janeiro, {{DATA_DOCUMENTO}}.
 
-Rio de Janeiro, {{DATA_DOCUMENTO}}.`;
+{{DEVEDOR_NOME}}
+
+CPF: {{DEVEDOR_CPF}}
+
+TESTEMUNHAS:
+
+Nome: [PREENCHER]
+
+CPF: [PREENCHER]
+
+Nome: [PREENCHER]
+
+CPF: [PREENCHER]`;
 
 function valorPorExtensoBasico(valor){
   const n=Math.round(Number(valor)||0);
@@ -1072,12 +1087,11 @@ function preencherConfissaoComAcordo(){
   const parcela=totalAcordo>0&&qtd>0?(totalAcordo-entrada)/qtd:0;
   if(totalAcordo>0) document.getElementById('confTotal').value=moeda(totalAcordo);
   if(parcela>0 && qtd>0 && !document.getElementById('confParcelas').value){
-    let linhas=[];
-    const v=document.getElementById('acordoVencimento').value;
+    const linhas=[]; const v=document.getElementById('acordoVencimento').value;
     for(let i=0;i<qtd;i++){
       const d=new Date(v+'T12:00:00'); if(!isNaN(d)) d.setMonth(d.getMonth()+i);
-      const ds=isNaN(d)?'':d.toLocaleDateString('pt-BR');
-      linhas.push(`Parcela ${String(i+1).padStart(2,'0')} - ${moeda(parcela)} - DIA ${ds}`);
+      const ds=isNaN(d)?'[PREENCHER DATA]':d.toLocaleDateString('pt-BR');
+      linhas.push(`Parcela ${String(i+1).padStart(2,'0')} - ${moeda(parcela)} - vencimento em ${ds}`);
     }
     document.getElementById('confParcelas').value=linhas.join('\n');
   }
@@ -1085,12 +1099,24 @@ function preencherConfissaoComAcordo(){
 }
 function renderConfissaoText(){
   const vals={
-    DEV:document.getElementById('confNome').value.trim()||'{DEVEDOR_NOME}', RG:document.getElementById('confRG').value.trim()||'{DEVEDOR_RG}', CPF:document.getElementById('confCPF').value.trim()||'{DEVEDOR_CPF}',
-    END:document.getElementById('confEndereco').value.trim()||'{DEVEDOR_ENDERECO}', BAIRRO:document.getElementById('confBairro').value.trim()||'{DEVEDOR_BAIRRO}', CEP:document.getElementById('confCEP').value.trim()||'{DEVEDOR_CEP}', CIDADE:document.getElementById('confCidade').value.trim()||'{DEVEDOR_CIDADE}',
-    TOTAL:document.getElementById('confTotal').value.trim()||'{VALOR_TOTAL}', EXT:document.getElementById('confExtenso').value.trim()||'{VALOR_EXTENSO}', REF:document.getElementById('confReferencia').value.trim()||'{REFERENCIA}', PARC:document.getElementById('confParcelas').value.trim()||'{PARCELAS}', DATA:formatarDataBR(document.getElementById('confData').value)||'{DATA_DOCUMENTO}'
+    DEV:document.getElementById('confNome').value.trim()||'[PREENCHER NOME]',
+    ESTADO:document.getElementById('confEstadoCivil').value.trim()||'[PREENCHER ESTADO CIVIL]',
+    PROF:document.getElementById('confProfissao').value.trim()||'[PREENCHER PROFISSÃO]',
+    EMAIL:document.getElementById('confEmail').value.trim()||'[PREENCHER]',
+    RG:document.getElementById('confRG').value.trim()||'[PREENCHER]',
+    CPF:document.getElementById('confCPF').value.trim()||'[PREENCHER]',
+    END:document.getElementById('confEndereco').value.trim()||'[PREENCHER ENDEREÇO COMPLETO]',
+    CIDADE:document.getElementById('confCidadeUF').value.trim()||'[CIDADE-UF]',
+    CEP:document.getElementById('confCEP').value.trim()||'[CEP]',
+    TOTAL:document.getElementById('confTotal').value.trim()||'[PREENCHER VALOR NUMÉRICO]',
+    EXT:document.getElementById('confExtenso').value.trim()||'[PREENCHER VALOR POR EXTENSO]',
+    FORMA:document.getElementById('confForma').value.trim()||'[PREENCHER]',
+    MEIO:document.getElementById('confMeioPagamento').value.trim()||'[PREENCHER]',
+    PARC:document.getElementById('confParcelas').value.trim()||'[PREENCHER PARCELAS: valor e data de vencimento de cada uma]',
+    PERC:document.getElementById('confPercentuais').value.trim()||'[PREENCHER PERCENTUAIS]',
+    DATA:formatarDataBR(document.getElementById('confData').value)||'[PREENCHER DATA DO DIA]'
   };
-  let t=confissaoTemplate.replaceAll('{DEVEDOR_NOME}',vals.DEV).replaceAll('{DEVEDOR_RG}',vals.RG).replaceAll('{DEVEDOR_CPF}',vals.CPF).replaceAll('{DEVEDOR_ENDERECO}',vals.END).replaceAll('{DEVEDOR_BAIRRO}',vals.BAIRRO).replaceAll('{DEVEDOR_CEP}',vals.CEP).replaceAll('{DEVEDOR_CIDADE}',vals.CIDADE).replaceAll('{VALOR_TOTAL}',vals.TOTAL).replaceAll('{VALOR_EXTENSO}',vals.EXT).replaceAll('{REFERENCIA}',vals.REF).replaceAll('{PARCELAS}',vals.PARC).replaceAll('{DATA_DOCUMENTO}',vals.DATA);
-  return t;
+  return confissaoTemplate.replaceAll('{{DEVEDOR_NOME}}',vals.DEV).replaceAll('{{ESTADO_CIVIL}}',vals.ESTADO).replaceAll('{{PROFISSAO}}',vals.PROF).replaceAll('{{EMAIL}}',vals.EMAIL).replaceAll('{{DEVEDOR_RG}}',vals.RG).replaceAll('{{DEVEDOR_CPF}}',vals.CPF).replaceAll('{{DEVEDOR_ENDERECO}}',vals.END).replaceAll('{{CIDADE_UF}}',vals.CIDADE).replaceAll('{{CEP}}',vals.CEP).replaceAll('{{VALOR_NUMERICO}}',vals.TOTAL.replace(/^R\$\s*/,'')).replaceAll('{{VALOR_EXTENSO}}',vals.EXT).replaceAll('{{FORMA_PAGAMENTO}}',vals.FORMA).replaceAll('{{MEIO_PAGAMENTO}}',vals.MEIO).replaceAll('{{PARCELAS}}',vals.PARC).replaceAll('{{PERCENTUAIS}}',vals.PERC).replaceAll('{{DATA_DOCUMENTO}}',vals.DATA);
 }
 function atualizarConfissao(){
   const t=renderConfissaoText();
@@ -1101,7 +1127,7 @@ function atualizarConfissao(){
 function gerarPDFConfissao(){
     prepararImpressao('confissao');
 }
-['confNome','confRG','confCPF','confEndereco','confBairro','confCEP','confCidade','confTotal','confExtenso','confReferencia','confParcelas','confData'].forEach(id=>{
+['confNome','confEstadoCivil','confProfissao','confEmail','confCPF','confRG','confEndereco','confCidadeUF','confCEP','confTotal','confExtenso','confForma','confMeioPagamento','confParcelas','confPercentuais','confData'].forEach(id=>{
   const el=document.getElementById(id); if(el){el.addEventListener('input',atualizarConfissao);el.addEventListener('change',atualizarConfissao);}
 });
 
