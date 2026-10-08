@@ -449,11 +449,12 @@ td:nth-child(4){
 .acordo-rodape{margin-top:55px;text-align:center;font-size:10px;color:#94a3b8}
 .acordo-form input{font-size:16px}
 @media(max-width:700px){.acordo-form{grid-template-columns:1fr}.acordo-form .full{grid-column:auto}.app-nav{padding:10px 18px}.content{padding:22px 18px 28px}}
+.acordo-print-root{display:none!important}
+
 @media print{
   body.imprimir-acordo .container{display:none!important}
   body.imprimir-acordo .acordo-print-root{display:block!important}
   body.imprimir-acordo{background:#fff}
-  .acordo-print-root{display:none}
   @page{size:A4 portrait;margin:16mm}
 }
 
@@ -621,8 +622,7 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
         <button class="imprimir" type="button" onclick="gerarPDFAcordo()">📄 Gerar PDF do Acordo</button>
     </div>
 
-    <div class="aviso" style="margin-top:22px">Devido à LGPD, nenhum dado sensível do cliente será incluído no PDF. Preencha apenas para explicar de forma clara para o cliente. O PDF será gerado em uma página simples, contendo apenas o valor total, o valor da entrada, o parcelamento e as respectivas datas de vencimento.
-</div>
+    <div class="aviso" style="margin-top:22px">Preencha os dados que foram combinados com o cliente. O PDF será gerado em uma página simples, com o valor total, entrada, parcelamento e vencimento.</div>
 </div>
 
 <div id="paginaDescritivo" class="app-page">
@@ -735,9 +735,83 @@ function moeda(valor){
     return valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 }
 
+function imprimirEmNovaJanela(conteudo, titulo){
+    // Mantém o conteúdo fora da tela principal. O acordo não aparece como uma página/preview.
+    // A impressão é feita por um iframe invisível e o usuário recebe apenas a janela de impressão do navegador.
+    const iframe=document.createElement('iframe');
+    iframe.setAttribute('title', titulo || 'Documento para impressão');
+    iframe.style.position='fixed';
+    iframe.style.right='0';
+    iframe.style.bottom='0';
+    iframe.style.width='1px';
+    iframe.style.height='1px';
+    iframe.style.border='0';
+    iframe.style.opacity='0';
+    iframe.style.pointerEvents='none';
+    iframe.style.zIndex='-1';
+    document.body.appendChild(iframe);
+
+    const doc=iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${titulo || 'Documento'}</title><style>
+        *{box-sizing:border-box} body{margin:0;background:#fff;color:#111;font-family:Arial,Segoe UI,sans-serif}
+        .pagina{width:100%;max-width:1100px;margin:0 auto;padding:8mm}
+        table{width:100%;border-collapse:collapse} th,td{border:1px solid #bbb;padding:6px 4px;font-size:9px;text-align:center} th{background:#eee;color:#111}
+        h1,h2{text-align:center;margin:0 0 18px}.acordo-pdf{max-width:820px;margin:0 auto;padding:20px}.acordo-linha{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid #ddd}.acordo-linha span{font-size:12px;font-weight:bold;color:#555}.acordo-linha strong{font-size:15px}.acordo-data{text-align:right;margin-top:25px;font-size:12px}
+        .confissao-print{font-size:11.5pt;line-height:1.45}.confissao-print p{margin:0 0 10px;text-align:justify}.confissao-print h1{font-size:16pt}.copyright{text-align:center;margin-top:12px;font-size:8px;color:#666}
+        @page{size:A4 portrait;margin:10mm}@media print{.pagina{padding:0}}
+    </style></head><body><div class="pagina">${conteudo}</div></body></html>`);
+    doc.close();
+
+    const imprimir=()=>{
+        try{
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }catch(e){
+            alert('Não foi possível abrir a impressão. Tente novamente.');
+        }
+        setTimeout(()=>iframe.remove(),1500);
+    };
+
+    setTimeout(imprimir,150);
+}
+
+function prepararImpressao(tipo){
+    if(tipo==='calculadora'){
+        calcular();
+        const origem=document.querySelector('#paginaCalculadora .print-only');
+        if(!origem){alert('Não foi possível preparar a impressão da calculadora.');return;}
+        const clone=origem.cloneNode(true);
+        const titulo=document.createElement('h2'); titulo.textContent='SIMULAÇÃO DE ACORDO'; clone.prepend(titulo);
+        imprimirEmNovaJanela(clone.outerHTML,'Simulação de Acordo');
+        return;
+    }
+    if(tipo==='acordo'){
+        const cliente=document.getElementById('acordoCliente').value.trim();
+        const total=numero(document.getElementById('acordoTotal').value);
+        const entrada=numero(document.getElementById('acordoEntrada').value);
+        const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
+        const vencimento=document.getElementById('acordoVencimento').value;
+        let valorParcela=numero(document.getElementById('acordoValorParcela').value);
+        if(!cliente||total<=0||entrada<0||qtd<=0||!vencimento){alert('Preencha nome do cliente, valor total, entrada, quantidade de parcelas e vencimento.');return;}
+        if(valorParcela<=0) valorParcela=(total-entrada)/qtd;
+        document.getElementById('pdfCliente').textContent=cliente;
+        document.getElementById('pdfTotal').textContent=moeda(total);
+        document.getElementById('pdfEntrada').textContent=moeda(entrada);
+        document.getElementById('pdfParcelamento').textContent=`${qtd}x de ${moeda(valorParcela)}`;
+        document.getElementById('pdfVencimento').textContent=formatarDataBR(vencimento);
+        document.getElementById('pdfData').textContent=new Date().toLocaleDateString('pt-BR');
+        imprimirEmNovaJanela(document.getElementById('acordoPrintRoot').innerHTML,'Acordo de Pagamento');
+        return;
+    }
+    if(tipo==='confissao'){
+        atualizarConfissao();
+        imprimirEmNovaJanela(document.getElementById('confissaoPrintRoot').innerHTML,'Confissão de Dívida');
+    }
+}
+
 function salvarPDF(){
-    calcular();
-    setTimeout(()=>window.print(),100);
+    prepararImpressao('calculadora');
 }
 
 function calcular(){
@@ -880,33 +954,7 @@ function preencherAcordoAutomaticamente(){
 }
 
 function gerarPDFAcordo(){
-    const cliente=document.getElementById('acordoCliente').value.trim();
-    const total=numero(document.getElementById('acordoTotal').value);
-    const entrada=numero(document.getElementById('acordoEntrada').value);
-    const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
-    let valorParcela=numero(document.getElementById('acordoValorParcela').value);
-    const vencimento=document.getElementById('acordoVencimento').value;
-
-    if(!cliente || total<=0 || entrada<0 || qtd<=0 || !vencimento){
-        alert('Preencha nome do cliente, valor total, entrada, quantidade de parcelas e vencimento.');
-        return;
-    }
-
-    if(valorParcela<=0){
-        const saldo=Math.max(0,total-entrada);
-        valorParcela=saldo/qtd;
-        document.getElementById('acordoValorParcela').value=moeda(valorParcela);
-    }
-
-    document.getElementById('pdfCliente').textContent=cliente;
-    document.getElementById('pdfTotal').textContent=moeda(total);
-    document.getElementById('pdfEntrada').textContent=moeda(entrada);
-    document.getElementById('pdfParcelamento').textContent=`${qtd}x de ${moeda(valorParcela)}`;
-    document.getElementById('pdfVencimento').textContent=formatarDataBR(vencimento);
-    document.getElementById('pdfData').textContent=new Date().toLocaleDateString('pt-BR');
-
-    document.body.classList.add('imprimir-acordo');
-    setTimeout(()=>window.print(),100);
+    prepararImpressao('acordo');
 }
 
 
@@ -1051,9 +1099,7 @@ function atualizarConfissao(){
   document.getElementById('confPrintBody').innerHTML=html;
 }
 function gerarPDFConfissao(){
-  atualizarConfissao();
-  document.body.classList.add('imprimir-confissao');
-  setTimeout(()=>window.print(),100);
+    prepararImpressao('confissao');
 }
 ['confNome','confRG','confCPF','confEndereco','confBairro','confCEP','confCidade','confTotal','confExtenso','confReferencia','confParcelas','confData'].forEach(id=>{
   const el=document.getElementById(id); if(el){el.addEventListener('input',atualizarConfissao);el.addEventListener('change',atualizarConfissao);}
@@ -1075,8 +1121,14 @@ definirVencimentoPadrao();
 definirDataDescritivo();
 const confData=document.getElementById('confData'); if(confData&&!confData.value){const d=new Date();confData.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 atualizarConfissao();
-window.addEventListener('afterprint',()=>{document.body.classList.remove('imprimir-acordo');document.body.classList.remove('imprimir-confissao');});
+window.addEventListener('afterprint',()=>{
+    document.body.classList.remove('imprimir-acordo');
+    document.body.classList.remove('imprimir-confissao');
+});
+window.addEventListener('beforeprint',()=>{
+    document.documentElement.classList.add('gerando-pdf');
+});
+
 </script>
 </body>
 </html>
-ca
