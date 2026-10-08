@@ -467,7 +467,7 @@ td:nth-child(4){
 #navDescritivo{white-space:nowrap}
 @media(max-width:700px){#navDescritivo{white-space:normal}.descritivo-preview{padding:14px}}
 
-.confissao-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.confissao-form .full{grid-column:1/-1}.confissao-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.confissao-preview{margin-top:22px;background:#fff;border:1px solid #dfe5ee;border-radius:10px;padding:34px 38px;line-height:1.55;color:#202733}.confissao-preview h2{text-align:center;color:#17233c;font-size:20px;margin:0 0 24px}.confissao-preview .doc-p{margin:0 0 12px;text-align:justify}.confissao-preview .clausula{font-weight:700}.confissao-preview .assinaturas{display:block}.confissao-print-root{display:none}
+.confissao-form select{width:100%;padding:12px;border:1px solid #dfe5ee;border-radius:8px;background:#fff;font:inherit}.confissao-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.confissao-form .full{grid-column:1/-1}.confissao-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.confissao-preview{margin-top:22px;background:#fff;border:1px solid #dfe5ee;border-radius:10px;padding:34px 38px;line-height:1.55;color:#202733}.confissao-preview h2{text-align:center;color:#17233c;font-size:20px;margin:0 0 24px}.confissao-preview .doc-p{margin:0 0 12px;text-align:justify}.confissao-preview .clausula{font-weight:700}.confissao-preview .assinaturas{display:block}.confissao-print-root{display:none}
 @media(max-width:700px){.confissao-form{grid-template-columns:1fr}.confissao-form .full{grid-column:auto}}
 @media print{body.imprimir-confissao .container{display:none!important}body.imprimir-confissao .confissao-print-root{display:block!important}body.imprimir-confissao{background:#fff}.confissao-print-root{display:none}@page{size:A4 portrait;margin:16mm}.confissao-print{font-family:Arial,sans-serif;color:#111;font-size:11.5pt;line-height:1.45}.confissao-print h1{text-align:center;font-size:16pt;margin:0 0 18px}.confissao-print p{margin:0 0 10px;text-align:justify}.confissao-print .titulo-clausula{font-weight:700}.confissao-print .cabecalho{margin-bottom:14px}.confissao-print .assinaturas{display:none}}
 </style>
@@ -668,18 +668,21 @@ Os percentuais selecionados são acrescentados ao valor original da dívida. A o
 </div>
 
 <div id="paginaConfissao" class="app-page">
+  <div class="aviso" style="margin-bottom:18px">⚠️ <strong>Primeiro faça o Acordo de Pagamento.</strong> Depois, volte para esta tela de Confissão de Dívida. O nome do cliente, o valor total e as parcelas serão carregados automaticamente do acordo.</div>
   <div class="confissao-form">
     <div class="input-box full"><label for="confNome">Nome do devedor</label><input id="confNome" type="text" placeholder="Nome completo"></div>
-    <div class="input-box"><label for="confEstadoCivil">Estado civil</label><input id="confEstadoCivil" type="text" placeholder="Ex.: solteiro(a)"></div>
+    <div class="input-box"><label for="confEstadoCivil">Estado civil</label><select id="confEstadoCivil"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>Separado(a)</option><option>União estável</option></select></div>
     <div class="input-box"><label for="confProfissao">Profissão</label><input id="confProfissao" type="text" placeholder="Ex.: autônomo(a)"></div>
-    <div class="input-box full"><label for="confEmail">E-mail</label><input id="confEmail" type="email" placeholder="cliente@email.com"></div>
-    <div class="input-box"><label for="confCPF">CPF</label><input id="confCPF" type="text"></div>
+    <div class="input-box"><label for="confEmail">E-mail</label><input id="confEmail" type="email" placeholder="cliente@email.com"></div>
+    <div class="input-box"><label for="confTelefone">Telefone / WhatsApp</label><input id="confTelefone" type="tel" inputmode="tel" placeholder="(00) 00000-0000"></div>
+    <div class="input-box"><label for="confCPF">CPF</label><input id="confCPF" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00"></div>
     <div class="input-box"><label for="confRG">RG</label><input id="confRG" type="text"></div>
     <div class="input-box full"><label for="confEndereco">Endereço completo</label><input id="confEndereco" type="text" placeholder="Rua, número, complemento, bairro"></div>
-    <div class="input-box"><label for="confCidadeUF">Cidade/UF</label><input id="confCidadeUF" type="text" placeholder="Rio de Janeiro/RJ"></div>
-    <div class="input-box"><label for="confCEP">CEP</label><input id="confCEP" type="text"></div>
+    <div class="input-box"><label for="confCidade">Cidade</label><input id="confCidade" type="text" placeholder="Rio de Janeiro"></div>
+    <div class="input-box"><label for="confUF">UF</label><select id="confUF"><option value="">Selecione o estado</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+    <div class="input-box"><label for="confCEP">CEP</label><input id="confCEP" type="text" inputmode="numeric" maxlength="9" placeholder="00000-000"></div>
     <div class="input-box"><label for="confTotal">Valor total da dívida</label><input id="confTotal" type="text" inputmode="decimal" placeholder="R$ 5.000,00"></div>
-    <div class="input-box"><label for="confExtenso">Valor por extenso</label><input id="confExtenso" type="text" placeholder="Cinco mil reais"></div>
+    <div class="input-box"><label for="confExtenso">Valor por extenso</label><input id="confExtenso" type="text" readonly placeholder="Gerado automaticamente"></div>
     <div class="input-box"><label for="confForma">Forma de pagamento</label><input id="confForma" type="text" placeholder="parcelamento / pagamento integral"></div>
     <div class="input-box full"><label for="confParcelas">Parcelas e vencimentos</label><textarea id="confParcelas" rows="5" placeholder="Parcela 01 - R$ 1.000,00 - vencimento em 10/11/2026"></textarea></div>
     <div class="input-box full"><label for="confMeioPagamento">Meio de pagamento</label><input id="confMeioPagamento" type="text" value="PIX emitido pelo ASAAS"></div>
@@ -1070,17 +1073,46 @@ Rio de Janeiro, {{DATA_DOCUMENTO}}.
 </div>`;
 
 function valorPorExtensoBasico(valor){
-  const n=Math.round(Number(valor)||0);
-  if(n===5000) return 'Cinco mil reais';
-  if(n===3350) return 'Três mil trezentos e cinquenta reais';
-  return '';
+  const n=Number(valor)||0;
+  const unidades=['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
+  const especiais=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const dezenas=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const centenas=['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function ate999(x){
+    x=Math.floor(x); if(x<10)return unidades[x]; if(x<20)return especiais[x-10];
+    if(x<100)return dezenas[Math.floor(x/10)]+(x%10?' e '+unidades[x%10]:'');
+    if(x===100)return 'cem';
+    return centenas[Math.floor(x/100)]+(x%100?' e '+ate999(x%100):'');
+  }
+  function inteiro(x){
+    x=Math.floor(x); if(x<1000)return ate999(x);
+    const mil=Math.floor(x/1000), resto=x%1000;
+    const parteMil=mil===1?'mil':ate999(mil)+' mil';
+    return parteMil+(resto?' e '+ate999(resto):'');
+  }
+  const total=Math.round(n*100)/100, reais=Math.floor(total), centavos=Math.round((total-reais)*100);
+  if(reais===0 && centavos===0)return 'zero reais';
+  let texto=reais===0?'':inteiro(reais)+' '+(reais===1?'real':'reais');
+  if(centavos>0) texto+=(texto?' e ':'')+inteiro(centavos)+' '+(centavos===1?'centavo':'centavos');
+  return texto.charAt(0).toUpperCase()+texto.slice(1);
 }
+
+function validarCPF(cpf){
+  cpf=String(cpf).replace(/\D/g,''); if(cpf.length!==11 || /^(\d)\1+$/.test(cpf)) return false;
+  let soma=0; for(let i=0;i<9;i++) soma+=Number(cpf[i])*(10-i); let d=(soma*10)%11; if(d===10)d=0; if(d!==Number(cpf[9]))return false;
+  soma=0; for(let i=0;i<10;i++) soma+=Number(cpf[i])*(11-i); d=(soma*10)%11; if(d===10)d=0; return d===Number(cpf[10]);
+}
+function formatarCPF(v){let d=String(v).replace(/\D/g,'').slice(0,11); return d.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');}
+function formatarCEP(v){let d=String(v).replace(/\D/g,'').slice(0,8); return d.replace(/(\d{5})(\d)/,'$1-$2');}
+function formatarTelefone(v){let d=String(v).replace(/\D/g,'').slice(0,11); if(d.length<=10)return d.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3'); return d.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');}
+
 function preencherConfissaoComAcordo(){
   const totalAcordo=numero(document.getElementById('acordoTotal').value);
   const entrada=numero(document.getElementById('acordoEntrada').value);
   const qtd=parseInt(document.getElementById('acordoParcelas').value)||0;
   const parcela=totalAcordo>0&&qtd>0?(totalAcordo-entrada)/qtd:0;
-  if(totalAcordo>0) document.getElementById('confTotal').value=moeda(totalAcordo);
+  if(document.getElementById('acordoCliente').value.trim()) document.getElementById('confNome').value=document.getElementById('acordoCliente').value.trim();
+  if(totalAcordo>0){ document.getElementById('confTotal').value=moeda(totalAcordo); document.getElementById('confExtenso').value=valorPorExtensoBasico(totalAcordo); }
   if(parcela>0 && qtd>0 && !document.getElementById('confParcelas').value){
     const linhas=[]; const v=document.getElementById('acordoVencimento').value;
     for(let i=0;i<qtd;i++){
@@ -1101,7 +1133,7 @@ function renderConfissaoText(){
     RG:document.getElementById('confRG').value.trim()||'[PREENCHER]',
     CPF:document.getElementById('confCPF').value.trim()||'[PREENCHER]',
     END:document.getElementById('confEndereco').value.trim()||'[PREENCHER ENDEREÇO COMPLETO]',
-    CIDADE:document.getElementById('confCidadeUF').value.trim()||'[CIDADE-UF]',
+    CIDADE:(document.getElementById('confCidade').value.trim()||'[CIDADE]')+' - '+(document.getElementById('confUF').value||'[UF]'),
     CEP:document.getElementById('confCEP').value.trim()||'[CEP]',
     TOTAL:document.getElementById('confTotal').value.trim()||'[PREENCHER VALOR NUMÉRICO]',
     EXT:document.getElementById('confExtenso').value.trim()||'[PREENCHER VALOR POR EXTENSO]',
@@ -1122,9 +1154,18 @@ function atualizarConfissao(){
 function gerarPDFConfissao(){
     prepararImpressao('confissao');
 }
-['confNome','confEstadoCivil','confProfissao','confEmail','confCPF','confRG','confEndereco','confCidadeUF','confCEP','confTotal','confExtenso','confForma','confMeioPagamento','confParcelas','confPercentuais','confData'].forEach(id=>{
+['confNome','confEstadoCivil','confProfissao','confEmail','confTelefone','confCPF','confRG','confEndereco','confCidade','confUF','confCEP','confTotal','confExtenso','confForma','confMeioPagamento','confParcelas','confPercentuais','confData'].forEach(id=>{
   const el=document.getElementById(id); if(el){el.addEventListener('input',atualizarConfissao);el.addEventListener('change',atualizarConfissao);}
 });
+
+const confCPF=document.getElementById('confCPF');
+const confCEP=document.getElementById('confCEP');
+const confTelefone=document.getElementById('confTelefone');
+const confTotal=document.getElementById('confTotal');
+if(confCPF) confCPF.addEventListener('input',()=>{confCPF.value=formatarCPF(confCPF.value); confCPF.setCustomValidity(confCPF.value && !validarCPF(confCPF.value)?'CPF inválido.':''); atualizarConfissao();});
+if(confCEP) confCEP.addEventListener('input',()=>{confCEP.value=formatarCEP(confCEP.value); atualizarConfissao();});
+if(confTelefone) confTelefone.addEventListener('input',()=>{confTelefone.value=formatarTelefone(confTelefone.value); atualizarConfissao();});
+if(confTotal) confTotal.addEventListener('input',()=>{const n=numero(confTotal.value); document.getElementById('confExtenso').value=n>0?valorPorExtensoBasico(n):''; atualizarConfissao();});
 
 function definirVencimentoPadrao(){
     const campo=document.getElementById('acordoVencimento');
