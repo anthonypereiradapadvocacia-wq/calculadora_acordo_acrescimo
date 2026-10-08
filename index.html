@@ -501,7 +501,7 @@ td:nth-child(4){
 
 <div class="input-box">
 <label for="entradaPersonalizada">Entrada do cliente (R$) — opcional</label>
-<input id="entradaPersonalizada" type="text" inputmode="decimal" placeholder="Deixe vazio para usar 10%">
+<input id="entradaPersonalizada" type="text" inputmode="decimal" placeholder="Deixe vazio para usar 10% (mínimo sugerido)">
 </div>
 </div>
 
@@ -828,7 +828,9 @@ function salvarPDF(){
 function calcular(){
     const divida=numero(document.getElementById('divida').value);
     const parcelas=parseInt(document.getElementById('parcelas').value);
-    const entradaInformada=numero(document.getElementById('entradaPersonalizada').value);
+    const entradaCampo=document.getElementById('entradaPersonalizada').value.trim();
+    const entradaInformada=numero(entradaCampo);
+    const temEntradaPersonalizada=entradaCampo!=='';
     const tbody=document.getElementById('resultados');
 
     if(divida<=0||!parcelas||parcelas<1){
@@ -854,12 +856,12 @@ function calcular(){
         const entradaMinima=valorTotal*0.10;
         let entrada=0;
         if(parcelas > 1){
-            entrada = entradaInformada > entradaMinima ? Math.min(entradaInformada,valorTotal) : entradaMinima;
+            entrada = temEntradaPersonalizada ? Math.min(entradaInformada,valorTotal) : entradaMinima;
         }
         const saldo=parcelas === 1 ? valorTotal : valorTotal-entrada;
         const valorParcela=saldo/parcelas;
 
-        const entradaParaImpressao = entradaInformada > entradaMinima ? Math.min(entradaInformada,valorTotal) : entradaMinima;
+        const entradaParaImpressao = parcelas > 1 ? (temEntradaPersonalizada ? Math.min(entradaInformada,valorTotal) : entradaMinima) : 0;
         const saldoImpressao = valorTotal-entradaParaImpressao;
 
         const linha=document.createElement('tr');
