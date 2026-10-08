@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%230f172a%27/%3E%3Ctext x=%2732%27 y=%2741%27 text-anchor=%27middle%27 font-family=%27Arial,sans-serif%27 font-size=%2724%27 font-weight=%27bold%27 fill=%27white%27%3EDAP%3C/text%3E%3C/svg%3E">
 <title>Calculadora de Acordo</title>
 <style>
 *{box-sizing:border-box}
@@ -466,7 +467,7 @@ td:nth-child(4){
 #navDescritivo{white-space:nowrap}
 @media(max-width:700px){#navDescritivo{white-space:normal}.descritivo-preview{padding:14px}}
 
-.confissao-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.confissao-form .full{grid-column:1/-1}.confissao-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.confissao-preview{margin-top:22px;background:#fff;border:1px solid #dfe5ee;border-radius:10px;padding:34px 38px;line-height:1.55;color:#202733}.confissao-preview h2{text-align:center;color:#17233c;font-size:20px;margin:0 0 24px}.confissao-preview .doc-p{margin:0 0 12px;text-align:justify}.confissao-preview .clausula{font-weight:700}.confissao-preview .assinaturas{display:none}.confissao-print-root{display:none}
+.confissao-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.confissao-form .full{grid-column:1/-1}.confissao-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}.confissao-preview{margin-top:22px;background:#fff;border:1px solid #dfe5ee;border-radius:10px;padding:34px 38px;line-height:1.55;color:#202733}.confissao-preview h2{text-align:center;color:#17233c;font-size:20px;margin:0 0 24px}.confissao-preview .doc-p{margin:0 0 12px;text-align:justify}.confissao-preview .clausula{font-weight:700}.confissao-preview .assinaturas{display:block}.confissao-print-root{display:none}
 @media(max-width:700px){.confissao-form{grid-template-columns:1fr}.confissao-form .full{grid-column:auto}}
 @media print{body.imprimir-confissao .container{display:none!important}body.imprimir-confissao .confissao-print-root{display:block!important}body.imprimir-confissao{background:#fff}.confissao-print-root{display:none}@page{size:A4 portrait;margin:16mm}.confissao-print{font-family:Arial,sans-serif;color:#111;font-size:11.5pt;line-height:1.45}.confissao-print h1{text-align:center;font-size:16pt;margin:0 0 18px}.confissao-print p{margin:0 0 10px;text-align:justify}.confissao-print .titulo-clausula{font-weight:700}.confissao-print .cabecalho{margin-bottom:14px}.confissao-print .assinaturas{display:none}}
 </style>
@@ -765,7 +766,7 @@ function imprimirEmNovaJanela(conteudo, titulo){
         .pagina{width:100%;max-width:1100px;margin:0 auto;padding:8mm}
         table{width:100%;border-collapse:collapse} th,td{border:1px solid #bbb;padding:6px 4px;font-size:9px;text-align:center} th{background:#eee;color:#111}
         h1,h2{text-align:center;margin:0 0 18px}.acordo-pdf{max-width:820px;margin:0 auto;padding:20px}.acordo-linha{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid #ddd}.acordo-linha span{font-size:12px;font-weight:bold;color:#555}.acordo-linha strong{font-size:15px}.acordo-data{text-align:right;margin-top:25px;font-size:12px}
-        .confissao-print{font-size:11.5pt;line-height:1.45}.confissao-print p{margin:0 0 10px;text-align:justify}.confissao-print h1{font-size:16pt}.copyright{text-align:center;margin-top:12px;font-size:8px;color:#666}
+        .confissao-print{font-size:11.5pt;line-height:1.45}.confissao-print p{margin:0 0 10px;text-align:justify}.confissao-print h1{font-size:16pt}.assinaturas-confissao{margin-top:48px;page-break-inside:avoid}.assinatura-bloco{text-align:center;min-width:240px}.linha-assinatura{width:260px;border-top:1px solid #111;margin:0 auto 7px}.copyright{text-align:center;margin-top:12px;font-size:8px;color:#666}
         @page{size:A4 portrait;margin:10mm}@media print{.pagina{padding:0}}
     </style></head><body><div class="pagina">${conteudo}</div></body></html>`);
     doc.close();
@@ -1060,19 +1061,13 @@ Cláusula 6ª: O presente Instrumento Particular de Confissão de Dívida passa 
 
 Rio de Janeiro, {{DATA_DOCUMENTO}}.
 
-{{DEVEDOR_NOME}}
-
-CPF: {{DEVEDOR_CPF}}
-
-TESTEMUNHAS:
-
-Nome: [PREENCHER]
-
-CPF: [PREENCHER]
-
-Nome: [PREENCHER]
-
-CPF: [PREENCHER]`;
+<div class="assinaturas-confissao">
+  <div class="assinatura-bloco">
+    <div class="linha-assinatura"></div>
+    <strong>{{DEVEDOR_NOME}}</strong><br>
+    CPF: {{DEVEDOR_CPF}}
+  </div>
+</div>`;
 
 function valorPorExtensoBasico(valor){
   const n=Math.round(Number(valor)||0);
